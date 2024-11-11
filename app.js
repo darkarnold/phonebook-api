@@ -61,19 +61,16 @@ const generateId = () => {
 };
 
 app.post("/api/persons", (request, response) => {
-  console.log(request.body);
   const body = request.body;
 
-  console.log(body);
-
-  if (!body.name && !body.number) {
+  if (!body.name || !body.number) {
     return response.status(400).json({
-      error: " name or number missing",
+      error: " name and number are required",
     });
   }
 
   if (contacts.find((contact) => contact.name === body.name)) {
-    return response.status(400).json({
+    return response.status(409).json({
       error: "name must be unique",
     });
   }
@@ -87,7 +84,7 @@ app.post("/api/persons", (request, response) => {
   contacts = contacts.concat(contact);
 
   console.log(`Added ${contact.name} with number ${contact.number}`);
-  response.json(contact);
+  response.status(201).json(contact);
 });
 
 const PORT = 3001;
