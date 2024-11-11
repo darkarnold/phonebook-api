@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json());
+
 let contacts = [
   {
     id: "1",
@@ -52,6 +54,40 @@ app.delete("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   contacts = contacts.filter((contact) => contact.id !== id);
   response.status(204).end();
+});
+
+const generateId = () => {
+  return String(Math.floor(Math.random() * 1000000000));
+};
+
+app.post("/api/persons", (request, response) => {
+  console.log(request.body);
+  const body = request.body;
+
+  console.log(body);
+
+  if (!body.name && !body.number) {
+    return response.status(400).json({
+      error: " name or number missing",
+    });
+  }
+
+  if (contacts.find((contact) => contact.name === body.name)) {
+    return response.status(400).json({
+      error: "name must be unique",
+    });
+  }
+
+  const contact = {
+    name: body.name,
+    number: body.number,
+    id: generateId(),
+  };
+
+  contacts = contacts.concat(contact);
+
+  console.log(`Added ${contact.name} with number ${contact.number}`);
+  response.json(contact);
 });
 
 const PORT = 3001;
