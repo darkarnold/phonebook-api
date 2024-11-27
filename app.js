@@ -56,13 +56,17 @@ app.get("/info", (request, response) => {
 
 app.get("/api/persons/:id", (request, response) => {
   const id = request.params.id;
-  const contact = contacts.find((contact) => contact.id === id);
+  //const contact = contacts.find((contact) => contact.id === id);
 
-  if (contact) {
+  Person.findById(id).then((contact) => {
     response.json(contact);
-  } else {
-    response.status(404).end();
-  }
+  });
+
+  // if (contact) {
+  //   response.json(contact);
+  // } else {
+  //   response.status(404).end();
+  // }
 });
 
 app.delete("/api/persons/:id", (request, response) => {
@@ -84,22 +88,26 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
-  if (contacts.find((contact) => contact.name === body.name)) {
-    return response.status(409).json({
-      error: "name must be unique",
-    });
-  }
+  // if (contacts.find((contact) => contact.name === body.name)) {
+  //   return response.status(409).json({
+  //     error: "name must be unique",
+  //   });
+  // }
 
-  const contact = {
+  const contact = new Person({
     name: body.name,
     number: body.number,
-    id: generateId(),
-  };
+    //id: generateId(),
+  });
 
-  contacts = contacts.concat(contact);
+  //contacts = contacts.concat(contact);
 
-  console.log(`Added ${contact.name} with number ${contact.number}`);
-  response.status(201).json(contact);
+  contact.save().then((savedContact) => {
+    console.log(
+      `Added ${savedContact.name} with number ${savedContact.number}`
+    );
+    response.status(201).json(savedContact);
+  });
 });
 
 const PORT = process.env.PORT;
